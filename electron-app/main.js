@@ -9,12 +9,12 @@ const store = new Store();
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
-    console.log('Another instance is already running. Quitting this instance.');
+    // Another instance is already running, quit this instance
     app.quit();
 } else {
     // Handle second instance attempt - focus existing window
     app.on('second-instance', (event, commandLine, workingDirectory) => {
-        console.log('Second instance detected, focusing existing window');
+        // Second instance detected, focusing existing window
         if (mainWindow) {
             if (mainWindow.isMinimized()) mainWindow.restore();
             mainWindow.focus();
@@ -160,7 +160,7 @@ function createCaptureWindow(config) {
 
 // Handle global keyboard shortcut
 function handleGlobalShortcut() {
-    console.log('Global shortcut triggered: Cmd/Ctrl+Shift+2');
+    // Global shortcut triggered
 
     // Show main window (user can click "Open Camera" button)
     if (!mainWindow || mainWindow.isDestroyed()) {
@@ -193,7 +193,7 @@ function createTray() {
             throw new Error('Icon not found');
         }
     } catch (error) {
-        console.log('Using default tray icon');
+        // Using default tray icon
         // Electron will use a default icon
     }
 
@@ -268,12 +268,7 @@ app.whenReady().then(() => {
     // Register global keyboard shortcut
     // CommandOrControl maps to Cmd on macOS and Ctrl on Windows
     const shortcutRegistered = globalShortcut.register('CommandOrControl+Shift+2', handleGlobalShortcut);
-
-    if (shortcutRegistered) {
-        console.log('✅ Global shortcut registered: Cmd/Ctrl+Shift+2');
-    } else {
-        console.error('❌ Failed to register global shortcut');
-    }
+    // Global shortcut registration attempted
 
     createMainWindow();
 
@@ -288,7 +283,7 @@ app.whenReady().then(() => {
 // Cleanup: Unregister shortcuts when app quits
 app.on('will-quit', () => {
     globalShortcut.unregisterAll();
-    console.log('Global shortcuts unregistered');
+    // Global shortcuts unregistered
 });
 
 // Quit app when all windows are closed
@@ -395,7 +390,7 @@ ipcMain.handle('write-clipboard', async (event, dataUrl) => {
 
         return { success: true };
     } catch (error) {
-        console.error('Clipboard error:', error);
+        // Clipboard error occurred
         return { success: false, message: error.message };
     }
 });
