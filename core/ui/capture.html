@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapIt - Camera</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../libs/cropper.min.css">
+    <link rel="stylesheet" href="capture.css">
+</head>
+
+<body>
+    <!-- Camera View -->
+    <div id="camera-view" class="view active">
+        <div class="camera-header">
+            <h2>Position Your Document</h2>
+            <button id="close-btn" class="btn-icon-only" title="Close">✕</button>
+        </div>
+
+        <div class="camera-preview-container">
+            <video id="camera-preview" autoplay playsinline></video>
+            <canvas id="capture-canvas" style="display: none;"></canvas>
+
+            <!-- Document Framing Overlay -->
+            <div class="document-frame-overlay">
+                <div class="frame-guide">
+                    <div class="frame-corners">
+                        <div class="corner top-left"></div>
+                        <div class="corner top-right"></div>
+                        <div class="corner bottom-left"></div>
+                        <div class="corner bottom-right"></div>
+                    </div>
+                    <div class="frame-hint">Position document within frame</div>
+                </div>
+            </div>
+
+            <!-- Countdown Overlay -->
+            <div id="countdown-overlay" class="countdown-overlay">
+                <div class="countdown-circle">
+                    <svg class="countdown-progress" viewBox="0 0 120 120">
+                        <circle class="countdown-track" cx="60" cy="60" r="54" />
+                        <circle id="countdown-progress-circle" class="countdown-fill" cx="60" cy="60" r="54" />
+                    </svg>
+                    <div id="countdown-number" class="countdown-number">3</div>
+                </div>
+                <p class="countdown-hint">Hold steady...</p>
+            </div>
+
+            <!-- Flash Overlay -->
+            <div id="flash-overlay" class="flash-overlay"></div>
+
+            <!-- Success Overlay -->
+            <div id="success-overlay" class="success-overlay">
+                <div class="success-icon">✓</div>
+                <p>Document captured successfully!</p>
+            </div>
+        </div>
+
+        <div class="camera-controls">
+            <button id="capture-btn" class="btn btn-capture" disabled>
+                <span class="btn-icon">📷</span>
+                Capture Document
+            </button>
+        </div>
+
+        <div id="error-message" class="error-message" style="display: none;">
+            <p id="error-text"></p>
+        </div>
+    </div>
+
+    <!-- Edit View (Crop) -->
+    <div id="edit-view" class="view">
+        <div class="edit-header">
+            <h2>Adjust Your Document</h2>
+        </div>
+
+        <div class="crop-container">
+            <img id="crop-image" src="" alt="Captured document">
+        </div>
+
+        <div class="crop-controls">
+            <button id="rotate-left-btn" class="btn btn-crop">
+                <span class="btn-icon">↺</span>
+                Rotate Left
+            </button>
+            <button id="rotate-right-btn" class="btn btn-crop">
+                <span class="btn-icon">↻</span>
+                Rotate Right
+            </button>
+            <button id="reset-crop-btn" class="btn btn-crop">
+                <span class="btn-icon">⟲</span>
+                Reset
+            </button>
+        </div>
+
+        <div class="edit-actions">
+            <button id="retake-btn" class="btn btn-secondary">
+                <span class="btn-icon">🔄</span>
+                Retake
+            </button>
+            <button id="apply-crop-btn" class="btn btn-primary">
+                <span class="btn-icon">✓</span>
+                Done
+            </button>
+        </div>
+    </div>
+
+    <script src="../platform/platform.js"></script>
+    <script>
+        // Conditionally load platform implementation and all other scripts
+        (async function () {
+            try {
+                // Load platform implementation
+                if (typeof window.electronAPI !== 'undefined') {
+                    await new Promise((resolve) => {
+                        const script = document.createElement('script');
+                        script.src = '../platform/platform-electron.js';
+                        script.onload = resolve;
+                        script.onerror = () => {
+                            console.error('Failed to load platform-electron.js');
+                            resolve();
+                        };
+                        document.head.appendChild(script);
+                    });
+                } else if (typeof chrome !== 'undefined' && chrome.runtime) {
+                    await new Promise((resolve) => {
+                        const script = document.createElement('script');
+                        script.src = '../../chrome/platform-chrome.js';
+                        script.onload = resolve;
+                        script.onerror = () => {
+                            console.error('Failed to load platform-chrome.js');
+                            resolve();
+                        };
+                        document.head.appendChild(script);
+                    });
+                }
+
+                // Wait for platform to initialize
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                console.log('Platform ready, loading Cropper.js...');
+
+                // Load Cropper.js
+                await new Promise((resolve) => {
+                    const script = document.createElement('script');
+                    script.src = '../libs/cropper.min.js';
+                    script.onload = () => {
+                        console.log('Cropper.js loaded');
+                        resolve();
+                    };
+                    script.onerror = () => {
+                        console.error('Failed to load cropper.min.js');
+                        resolve();
+                    };
+                    document.head.appendChild(script);
+                });
+
+                console.log('Loading capture.js...');
+
+                // Load capture.js
+                await new Promise((resolve) => {
+                    const script = document.createElement('script');
+                    script.src = 'capture.js';
+                    script.onload = () => {
+                        console.log('capture.js loaded');
+                        resolve();
+                    };
+                    script.onerror = () => {
+                        console.error('Failed to load capture.js');
+                        resolve();
+                    };
+                    document.body.appendChild(script);
+                });
+
+                console.log('All scripts loaded successfully');
+            } catch (error) {
+                console.error('Error loading scripts:', error);
+            }
+        })();
+    </script>
+</body>
+
+</html>

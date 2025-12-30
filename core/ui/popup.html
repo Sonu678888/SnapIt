@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SnapIt - Document Capture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../libs/cropper.min.css">
+  <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <h1><img src="../../icons/icon-48.png" alt="SnapIt" class="header-icon"> SnapIt</h1>
+      <p id="status-text">Ready to capture</p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Launcher View -->
+      <div id="launcher-view" class="content-section active">
+        <div class="launcher-content">
+          <button id="open-camera-btn" class="btn btn-large btn-primary">
+            <span class="btn-icon">📷</span>
+            Open Camera
+          </button>
+
+          <div class="quick-info">
+            <p><strong>💡 Tip:</strong> Position your document clearly in the frame for best results</p>
+          </div>
+
+          <div class="shortcut-info">
+            <p>Press <kbd>Cmd+Shift+2</kbd> anytime to open SnapIt</p>
+            <p class="note">Keep SnapIt running in background for shortcut to work</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview View (shown after capture) -->
+      <div id="preview-view" class="content-section">
+        <!-- Preview Image -->
+        <div class="preview-container">
+          <img id="captured-image" alt="Captured document">
+        </div>
+
+        <!-- Primary Actions -->
+        <div class="primary-actions">
+          <button id="retake-btn" class="btn btn-secondary btn-block">
+            <span class="btn-icon">🔄</span>
+            Capture New Document
+          </button>
+        </div>
+
+        <!-- Image Format Selector -->
+        <div class="format-selector">
+          <label for="format-select">Image Format:</label>
+          <select id="format-select">
+            <option value="jpeg">JPEG</option>
+            <option value="png">PNG</option>
+          </select>
+        </div>
+
+        <!-- Single Image Actions Section -->
+        <div class="action-section">
+          <h3 class="section-title">📸 Single Image Actions</h3>
+          <div class="action-buttons">
+            <button id="copy-clipboard-btn" class="btn btn-action">
+              <span class="btn-icon">📋</span>
+              Copy to Clipboard
+            </button>
+            <button id="download-image-btn" class="btn btn-action">
+              <span class="btn-icon">💾</span>
+              Download Image
+            </button>
+            <button id="attach-webpage-btn" class="btn btn-action btn-block">
+              <span class="btn-icon">🔗</span>
+              Attach to Webpage
+            </button>
+          </div>
+        </div>
+
+        <!-- PDF Actions Section -->
+        <div class="action-section">
+          <h3 class="section-title">📄 Add to Multi-Page PDF</h3>
+
+          <div class="action-buttons">
+            <button id="add-page-btn" class="btn btn-action btn-primary btn-block">
+              <span class="btn-icon">➕</span>
+              Add to PDF
+            </button>
+          </div>
+
+          <p class="pdf-hint" id="pdf-hint-text" style="display: none;">
+            <span id="current-pages-count">0</span> pages already added
+          </p>
+        </div>
+      </div>
+
+      <!-- PDF Review View (shown after adding pages) -->
+      <div id="pdf-review-view" class="content-section">
+        <div class="pdf-review-container">
+          <div class="pdf-summary">
+            <div class="pdf-icon">📄</div>
+            <h2 id="pdf-page-count">0 Pages Added</h2>
+            <p>Your multi-page document is ready</p>
+          </div>
+
+          <div class="pdf-actions">
+            <button id="download-multi-pdf-btn" class="btn btn-large btn-success">
+              <span class="btn-icon">📥</span>
+              Download PDF
+            </button>
+
+            <button id="add-more-images-btn" class="btn btn-large btn-primary">
+              <span class="btn-icon">➕</span>
+              Add More Images
+            </button>
+
+            <button id="clear-all-pages-btn" class="btn btn-secondary">
+              <span class="btn-icon">🗑️</span>
+              Clear All Pages
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Subtle Footer -->
+    <footer class="app-footer">
+      <p>by Sonu Verma</p>
+    </footer>
+  </div>
+
+  <script src="../platform/platform.js"></script>
+  <script>
+    // Conditionally load platform implementation based on environment
+    // and wait for it to initialize before loading popup.js
+    (async function () {
+      if (typeof window.electronAPI !== 'undefined') {
+        // Running in Electron
+        await new Promise((resolve) => {
+          const script = document.createElement('script');
+          script.src = '../platform/platform-electron.js';
+          script.onload = resolve;
+          document.head.appendChild(script);
+        });
+      } else if (typeof chrome !== 'undefined' && chrome.runtime) {
+        // Running in Chrome Extension
+        await new Promise((resolve) => {
+          const script = document.createElement('script');
+          script.src = '../../chrome/platform-chrome.js';
+          script.onload = resolve;
+          document.head.appendChild(script);
+        });
+      }
+
+      // Wait a bit for platform to initialize
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // Now load jsPDF and popup.js
+      await new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.src = '../libs/jspdf.umd.min.js';
+        script.onload = resolve;
+        document.head.appendChild(script);
+      });
+
+      const popupScript = document.createElement('script');
+      popupScript.src = 'popup.js';
+      document.head.appendChild(popupScript);
+    })();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+electron-app/node_modules/
+
+# Build output
+electron-app/dist/
+*.dmg
+*.exe
+*.zip
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
